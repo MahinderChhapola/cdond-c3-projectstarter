@@ -16,6 +16,7 @@ jobs:
             cd frontend
             rm -rf node_modules/
             npm install
+            npm audit fix
             npm run build            
       - save_cache:
           paths:
@@ -36,6 +37,7 @@ jobs:
           cd backend
           rm -rf node_modules/
           npm install
+          npm audit fix
           npm run build
     - save_cache:
           paths: 
