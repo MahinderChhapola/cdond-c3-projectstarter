@@ -13,8 +13,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            cd frontend
-            rm -rf node_modules/
+            cd frontend            
             npm install            
             npm run build            
       - save_cache:
@@ -52,7 +51,7 @@ jobs:
       - run:
           name: Test front-end
           command: |
-            cd frontend            
+            cd frontend     
             npm run test
                 
   test-backend:
@@ -79,6 +78,7 @@ jobs:
           name: Scan frontend
           command: |
             cd frontend
+            npm update
             npm audit --audit-level=critical
 
   scan-backend:
@@ -99,8 +99,6 @@ workflows:
     jobs:
       - build-frontend
       - build-backend      
-      - scan-backend:
-          requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
       
