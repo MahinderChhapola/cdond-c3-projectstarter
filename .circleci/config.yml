@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs:
+  slack: circleci/slack@4.1.1
 
             
 jobs:
@@ -17,7 +18,12 @@ jobs:
             cd frontend
             rm -rf node_modules/          
             npm install
-            npm run build            
+            npm run build    
+            exit 1
+      - slack/notify:
+          event: fail          
+          mentions: 'Build Failed'
+          template: basic_fail_1        
       - save_cache:
           paths:
             - frontend/node_modules
@@ -105,7 +111,8 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      - build-frontend:
+          context: Slack
       - build-backend      
       - scan-frontend:
           requires: [build-frontend]
