@@ -30,7 +30,8 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        keys: [backend_build]
+        keys: 
+          - backend_build-${CIRCLE_WORKFLOW_ID}
     - run:
         name: Back-end build
         command: |
@@ -41,7 +42,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend_build
+          key: backend_build-${CIRCLE_WORKFLOW_ID}
   
   test-frontend:
     docker:
@@ -49,7 +50,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend_build]
+          keys: 
+            - frontend_build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Test front-end
           command: |
@@ -62,7 +64,8 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        keys: [backend_build]
+        keys: 
+          - backend_build-${CIRCLE_WORKFLOW_ID}
     - run:
         name: Test Back-end
         command: |
@@ -90,7 +93,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend_build]
+          keys: 
+            - backend_build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Scan backend
           command: |
@@ -105,4 +109,6 @@ workflows:
       - build-backend      
       - scan-frontend:
           requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
       
