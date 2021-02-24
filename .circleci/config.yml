@@ -9,7 +9,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend_build]
+          keys: 
+            - frontend_build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Build front-end
           command: |
@@ -21,7 +22,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend_build
+          key: frontend_build-${CIRCLE_WORKFLOW_ID}
 
   build-backend:
     docker:
@@ -74,7 +75,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend_build]
+          keys: 
+            - frontend_build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Scan frontend
           command: |
