@@ -9,7 +9,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build2]
+          keys: [frontend_build]
       - run:
           name: Build front-end
           command: |
@@ -22,7 +22,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend-build2
+          key: frontend_build
 
   build-backend:
     docker:
@@ -30,7 +30,7 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        keys: [backend-build2]
+        keys: [backend_build]
     - run:
         name: Back-end build
         command: |
@@ -43,7 +43,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend-build2
+          key: backend_build
   
   test-frontend:
     docker:
@@ -51,7 +51,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build2]
+          keys: [frontend_build]
       - run:
           name: Build front-end
           command: |
@@ -64,7 +64,7 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        keys: [backend-build2]
+        keys: [backend_build]
     - run:
         name: Back-end build
         command: |
@@ -78,7 +78,4 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
+      
