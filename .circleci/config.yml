@@ -13,8 +13,9 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            cd frontend            
-            npm install            
+            cd frontend
+            rm -rf node_modules/          
+            npm install
             npm run build            
       - save_cache:
           paths:
@@ -100,12 +101,6 @@ workflows:
     jobs:
       - build-frontend
       - build-backend      
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
       
