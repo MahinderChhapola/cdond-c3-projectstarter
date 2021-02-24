@@ -80,7 +80,8 @@ jobs:
       - run:
           name: Scan frontend
           command: |
-            cd frontend            
+            cd frontend
+            npm update        
             npm audit fix --audit-level=critical
 
   scan-backend:
