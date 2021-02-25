@@ -44,6 +44,10 @@ jobs:
           cd backend        
           npm install          
           npm run build
+    - slack/notify:
+          event: fail          
+          mentions: 'Build Failed'
+          template: basic_fail_1 
     - save_cache:
           paths: 
             - backend/node_modules
@@ -108,14 +112,52 @@ jobs:
             npm update
             npm audit fix --audit-level=critical
 
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - Checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name udacity-backend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"                
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name udacity-frontend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+              
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
+            --filters 'Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}' \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text)
+            echo ${INSTANCE_IP}
+            curl -H "Content-Type: text/plain" \
+               -H "token: ${CIRCLE_WORKFLOW_ID}" \
+               --request PUT \
+               --data ${INSTANCE_IP} \
+               https://api.memstash.io/values/instance_ip
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure 
+
 workflows:
   default:
     jobs:
       - build-frontend:
           context: Slack
       - build-backend      
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
+      - deploy-infrastructure
       
