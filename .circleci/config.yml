@@ -144,8 +144,7 @@ jobs:
             --filters "Name=tag:Name,Values=backend-ec66649a" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text) >> ~/inventory.txt
-            echo ${INSTANCE_IP}
-            cat inventory.txt
+            echo ${INSTANCE_IP}            
             curl -H "Content-Type: text/plain" \
                -H "token: ec66649a" \
                --request PUT \
