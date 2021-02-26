@@ -188,16 +188,29 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - backend_build-ec66649a
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            cd backend
+            npm run migrations > migrationOutput.txt
+            cat migrationOutput.txt            
       - run:
           name: Send migration results to memstash
           command: |
-            # Your code here
-            exit 1
+            echo migration-${CIRCLE_WORKFLOW_ID}
+            if grep -q "has been executed successfully." migration.txt
+            then
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
+            --request PUT \
+            --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+            else
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
+            --request PUT \
+            --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+            fi
      # Here's where you will add some code to rollback on failure
 
 workflows:
@@ -209,3 +222,5 @@ workflows:
       - deploy-infrastructure
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
