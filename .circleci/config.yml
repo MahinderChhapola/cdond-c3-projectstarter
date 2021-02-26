@@ -143,9 +143,9 @@ jobs:
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
             --filters "Name=tag:Name,Values=backend-ec66649a" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text) >> .circleci/ansible/inventory.txt
+            --output text) >> ~/inventory.txt
             echo ${INSTANCE_IP}
-            cat .circleci/ansible/inventory.txt
+            cat inventory.txt
             curl -H "Content-Type: text/plain" \
                -H "token: ec66649a" \
                --request PUT \
@@ -154,7 +154,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - inventory.txt
       # Here's where you will add some code to rollback on failure 
 
   configure-infrastructure:
@@ -167,7 +167,8 @@ jobs:
             - "e9:1e:77:66:76:a0:f9:77:ec:ba:6c:19:f8:e7:27:d7"
       - attach_workspace:
           at: ~/
-      - run: echo .circleci/ansible/inventory.txt
+      - run: cat inventory.txt
+      - run: cat ~/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -176,7 +177,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
             
       # Here's where you will add some code to rollback on failure  
 
