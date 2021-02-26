@@ -288,6 +288,18 @@ jobs:
           command: |
             apk add --update tar gzip curl
       - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
+            --filters "Name=tag:Name,Values=backend-ec66649a" \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text)
+            curl -H "Content-Type: text/plain" \
+               -H "token: ec66649a" \
+               --request PUT \
+               --data ${INSTANCE_IP} \
+               https://api.memstash.io/values/instance_ip
+      - run:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: ec66649a" --request GET https://api.memstash.io/values/instance_ip)
