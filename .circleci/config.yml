@@ -210,6 +210,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
+            cd backend
             echo migration-${CIRCLE_WORKFLOW_ID}
             if grep -q "has been executed successfully." migration.txt
             then
@@ -222,6 +223,32 @@ jobs:
             --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add curl
+            apk add --update npm
+            pip3 install awscli
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(curl -H "token: ec66649a" --request GET https://api.memstash.io/values/instance_ip)
+            echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      # Here's where you will add some code to rollback on failure      
 
 workflows:
   default:
