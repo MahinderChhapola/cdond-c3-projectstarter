@@ -143,15 +143,19 @@ jobs:
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
             --filters "Name=tag:Name,Values=backend-ec66649a" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text) >> ~/inventory.txt
-            echo ${INSTANCE_IP}            
+            --output text)
+            echo ${INSTANCE_IP} >> .circleci/ansible/inventory.txt
+            
+            ls ~/project/.circleci/ansible/            
+            cat ~/project/.circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt              
             curl -H "Content-Type: text/plain" \
                -H "token: ec66649a" \
                --request PUT \
                --data ${INSTANCE_IP} \
                https://api.memstash.io/values/instance_ip
       - persist_to_workspace:
-          root: ~/
+          root: .circleci/ansible
           paths:
             - inventory.txt
       # Here's where you will add some code to rollback on failure 
@@ -165,8 +169,8 @@ jobs:
           fingerprints:
             - "e9:1e:77:66:76:a0:f9:77:ec:ba:6c:19:f8:e7:27:d7"
       - attach_workspace:
-          at: ~/      
-      - run: cat ~/inventory.txt
+          at: /tmp/.circleci/ansible
+      - run: cat /tmp/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -175,7 +179,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
             
       # Here's where you will add some code to rollback on failure  
 
