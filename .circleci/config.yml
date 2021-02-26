@@ -116,13 +116,32 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-       
+      - run:
+          name: Installing dependencies
+          command: |
+            yum install -y tar gzip curl
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name udacity-backend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"                
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name udacity-frontend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
-            --filters "Name=tag:Name,Values=backend-*" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text)
             echo ${INSTANCE_IP}
@@ -179,6 +198,9 @@ jobs:
 workflows:
   default:
     jobs:
-           
+      - build-frontend:
+          context: Slack
+      - build-backend      
       - deploy-infrastructure
-     
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
