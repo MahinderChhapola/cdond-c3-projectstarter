@@ -265,8 +265,13 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add curl
-            pip3 install awscli  
+            apk add --update tar gzip curl
+            apk add --update openssh-client
+      - run:
+          name: Compress Backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la 
       - run:
           name: Deploy backend
           command: |
