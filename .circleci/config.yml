@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID}
+            - frontend_build-ec66649a
       - run:
           name: Build front-end
           command: |
@@ -27,7 +27,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend_build-${CIRCLE_WORKFLOW_ID}
+          key: frontend_build-ec66649a
 
   build-backend:
     docker:
@@ -36,7 +36,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-${CIRCLE_WORKFLOW_ID}
+          - backend_build-ec66649a
     - run:
         name: Back-end build
         command: |
@@ -51,7 +51,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend_build-${CIRCLE_WORKFLOW_ID}
+          key: backend_build-ec66649a
   
   test-frontend:
     docker:
@@ -60,7 +60,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID}
+            - frontend_build-ec66649a
       - run:
           name: Test front-end
           command: |
@@ -74,7 +74,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-${CIRCLE_WORKFLOW_ID}
+          - backend_build-ec66649a
     - run:
         name: Test Back-end
         command: |
@@ -88,7 +88,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID}
+            - frontend_build-ec66649a
       - run:
           name: Scan frontend
           command: |
@@ -103,7 +103,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - backend_build-${CIRCLE_WORKFLOW_ID}
+            - backend_build-ec66649a
       - run:
           name: Scan backend
           command: |
@@ -126,27 +126,28 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name udacity-backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"                
+              --stack-name udacity-backend-ec66649a \
+              --parameter-overrides ID="ec66649a"                
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name udacity-frontend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+              --stack-name udacity-frontend-ec66649a \
+              --parameter-overrides ID="ec66649a"  
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+            --filters "Name=tag:Name,Values=backend-ec66649a" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text)
+            --output text) >> .circleci/ansible/inventory.txt
             echo ${INSTANCE_IP}
+            cat .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" \
-               -H "token: ${CIRCLE_WORKFLOW_ID}" \
+               -H "token: ec66649a" \
                --request PUT \
                --data ${INSTANCE_IP} \
                https://api.memstash.io/values/instance_ip
