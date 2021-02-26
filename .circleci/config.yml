@@ -277,20 +277,41 @@ jobs:
           command: |
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-      # Here's where you will add some code to rollback on failure   
+      # Here's where you will add some code to rollback on failure
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11 
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip curl
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(curl -H "token: ec66649a" --request GET https://api.memstash.io/values/instance_ip)
+            export  API_URL="http://$BACKEND_IP:3030/api/status"
+                        
+      - run:
+          name: Backend smoke test.
+          command: |
+            echo $API_URL
+            curl "${API_URL}"
+            
+      - run:
+          name: Frontend smoke test.
+          command: |
+            FRONTEND_URL="http://http://udapeople-ec66649a.s3-website-eu-west-1.amazonaws.com/"
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
+            then
+              return 1
+            else
+              return 0
+            fi
+      # Here's where you will add some code to rollback on failure     
 
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: Slack
-      - build-backend      
-      - deploy-infrastructure
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      - smoke-test
