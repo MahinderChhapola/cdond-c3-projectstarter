@@ -291,12 +291,11 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: ec66649a" --request GET https://api.memstash.io/values/instance_ip)
-            export  API_URL="http://$BACKEND_IP:3030/api/status"
-                        
+            export API_URL="http://$BACKEND_IP:3030/api/status"                        
       - run:
           name: Backend smoke test.
           command: |
-            echo $API_URL
+            echo ${API_URL}
             curl "${API_URL}"
             
       - run:
