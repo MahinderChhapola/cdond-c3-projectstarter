@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Build front-end
           command: |
@@ -27,7 +27,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+          key: frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
 
   build-backend:
     docker:
@@ -36,7 +36,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
     - run:
         name: Back-end build
         command: |
@@ -51,7 +51,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+          key: backend_build-${CIRCLE_WORKFLOW_ID:0:7}
   
   test-frontend:
     docker:
@@ -60,7 +60,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Test front-end
           command: |
@@ -74,7 +74,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
     - run:
         name: Test Back-end
         command: |
@@ -88,7 +88,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Scan frontend
           command: |
@@ -103,7 +103,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Scan backend
           command: |
@@ -126,22 +126,22 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}}"                
+              --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"                
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}}"  
+              --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}}" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text)
             echo ${INSTANCE_IP} >> .circleci/ansible/inventory.txt
@@ -150,7 +150,7 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt              
             curl -H "Content-Type: text/plain" \
-               -H "token: ${CIRCLE_WORKFLOW_ID:0:7}}" \
+               -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
                --request PUT \
                --data ${INSTANCE_IP} \
                https://api.memstash.io/values/instance_ip
@@ -200,7 +200,7 @@ jobs:
             pip3 --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: 
-            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}}
+            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Run migrations
           command: |
@@ -211,16 +211,16 @@ jobs:
           name: Send migration results to memstash
           command: |
             cd backend
-            echo migration-${CIRCLE_WORKFLOW_ID:0:7}}
+            echo migration-${CIRCLE_WORKFLOW_ID:0:7}
             if grep -q "has been executed successfully." migration.txt
             then
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}}" \
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
             --request PUT \
-            --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}}
+            --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}
             else
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}}" \
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
             --request PUT \
-            --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}}
+            --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}
             fi
      # Here's where you will add some code to rollback on failure
   deploy-frontend:
@@ -237,7 +237,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}}" --request GET https://api.memstash.io/values/instance_ip)
+            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/instance_ip)
             echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
@@ -247,7 +247,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}} --recursive
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure      
 
   deploy-backend:
@@ -291,7 +291,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}}" --request GET https://api.memstash.io/values/instance_ip)
+            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/instance_ip)
             export API_URL="http://$BACKEND_IP:3030/api/status" 
             echo ${API_URL}
             curl "${API_URL}"                    
@@ -304,7 +304,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_URL="http://http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}}.s3-website-eu-west-1.amazonaws.com/"
+            FRONTEND_URL="http://http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-eu-west-1.amazonaws.com/"
             if curl -s ${FRONTEND_URL} | grep "Welcome"
             then
               return 1
