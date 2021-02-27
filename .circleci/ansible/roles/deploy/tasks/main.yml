@@ -26,8 +26,8 @@
 
 - name: "Copy backend tar.gz file and unzipping it"
   become: yes
-  unarchive:
-    src: ~/project/backend.tar.gz
+  ansible.builtin.unarchive:
+    src: /root/project/backend.tar.gz
     dest: /home/ubuntu
     
 - name: install
