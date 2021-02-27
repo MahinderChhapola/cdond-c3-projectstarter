@@ -11,7 +11,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
+<<<<<<< HEAD
             - frontend_build-6e81ff8
+=======
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Build front-end
           command: |
@@ -28,7 +32,11 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
+<<<<<<< HEAD
           key: frontend_build-6e81ff8
+=======
+          key: frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
 
   build-backend:
     docker:
@@ -37,7 +45,11 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
+<<<<<<< HEAD
           - backend_build-6e81ff8
+=======
+          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
     - run:
         name: Back-end build
         command: |
@@ -52,7 +64,11 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
+<<<<<<< HEAD
           key: backend_build-6e81ff8
+=======
+          key: backend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
   
   test-frontend:
     docker:
@@ -61,7 +77,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
+<<<<<<< HEAD
             - frontend_build-6e81ff8
+=======
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Test front-end
           command: |
@@ -75,7 +95,11 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
+<<<<<<< HEAD
           - backend_build-6e81ff8
+=======
+          - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
     - run:
         name: Test Back-end
         command: |
@@ -89,7 +113,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
+<<<<<<< HEAD
             - frontend_build-6e81ff8
+=======
+            - frontend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Scan frontend
           command: |
@@ -104,7 +132,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
+<<<<<<< HEAD
             - backend_build-6e81ff8
+=======
+            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Scan backend
           command: |
@@ -127,22 +159,36 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
+<<<<<<< HEAD
               --stack-name backend-6e81ff8 \
               --parameter-overrides ID="6e81ff8"                
+=======
+              --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"                
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
+<<<<<<< HEAD
               --stack-name frontend-6e81ff8 \
               --parameter-overrides ID="6e81ff8"  
+=======
+              --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
+<<<<<<< HEAD
             --filters "Name=tag:Name,Values=backend-6e81ff8" \
+=======
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text)
             echo ${INSTANCE_IP} >> .circleci/ansible/inventory.txt
@@ -151,7 +197,11 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt              
             curl -H "Content-Type: text/plain" \
+<<<<<<< HEAD
                -H "token: 6e81ff8" \
+=======
+               -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
                --request PUT \
                --data ${INSTANCE_IP} \
                https://api.memstash.io/values/instance_ip
@@ -201,7 +251,11 @@ jobs:
             pip3 --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: 
+<<<<<<< HEAD
             - backend_build-6e81ff8
+=======
+            - backend_build-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       - run:
           name: Run migrations
           command: |
@@ -212,6 +266,7 @@ jobs:
           name: Send migration results to memstash
           command: |
             cd backend
+<<<<<<< HEAD
             echo migration-6e81ff8
             if grep -q "has been executed successfully." migration.txt
             then
@@ -222,6 +277,18 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: 6e81ff8" \
             --request PUT \
             --data "0" https://api.memstash.io/values/migration-6e81ff8
+=======
+            echo migration-${CIRCLE_WORKFLOW_ID:0:7}
+            if grep -q "has been executed successfully." migration.txt
+            then
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
+            --request PUT \
+            --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}
+            else
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" \
+            --request PUT \
+            --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7}
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
             fi
      # Here's where you will add some code to rollback on failure
   deploy-frontend:
@@ -238,7 +305,11 @@ jobs:
       - run:
           name: Get backend url
           command: |
+<<<<<<< HEAD
             BACKEND_IP=$(curl -H "token: 6e81ff8" --request GET https://api.memstash.io/values/instance_ip)
+=======
+            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/instance_ip)
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
             echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
@@ -248,7 +319,11 @@ jobs:
             cd frontend
             npm install
             npm run build
+<<<<<<< HEAD
             aws s3 cp ./dist s3://udapeople-6e81ff8 --recursive
+=======
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
       # Here's where you will add some code to rollback on failure      
 
   deploy-backend:
@@ -292,7 +367,11 @@ jobs:
       - run:
           name: Get backend url
           command: |
+<<<<<<< HEAD
             BACKEND_IP=$(curl -H "token: 6e81ff8" --request GET https://api.memstash.io/values/instance_ip)
+=======
+            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/instance_ip)
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
             export API_URL="http://$BACKEND_IP:3030/api/status" 
             echo ${API_URL}
             curl "${API_URL}"                    
@@ -305,7 +384,11 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
+<<<<<<< HEAD
             FRONTEND_URL="http://http://udapeople-6e81ff8.s3-website-eu-west-1.amazonaws.com/"
+=======
+            FRONTEND_URL="http://http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-eu-west-1.amazonaws.com/"
+>>>>>>> eb9047d84cb32c8a2f15198fa245b04c70d540ed
             if curl -s ${FRONTEND_URL} | grep "Welcome"
             then
               return 1
