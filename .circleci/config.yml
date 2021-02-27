@@ -307,7 +307,7 @@ jobs:
           name: Backend smoke test.
           command: |
             echo ${API_URL}
-            curl "${API_URL}"
+            curl ${API_URL}
             
       - run:
           name: Frontend smoke test.
