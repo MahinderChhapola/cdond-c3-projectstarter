@@ -1,6 +1,44 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.1.1
+commands:
+  destroy-environment:
+    description: Destroy backend and frontend stacks.
+    steps:      
+      - run:
+          name: Delete S3 bucket
+          when: on_fail
+          command: aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - run:
+          name: Destroy Frontend Infrastructure
+          when: on_fail
+          command: aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Destroy Backend Infrastructure
+          when: on_fail
+          command: aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Destroy Promotion Stack
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-cloudfront
+  
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.   
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
+            --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
+            echo "************** SUCCESS = $SUCCESS"
+            if(( $SUCCESS==1 )); 
+            then
+             cd backend
+             npm install
+             npm run migrations:revert
+            fi    
 
             
 jobs:
@@ -277,6 +315,8 @@ jobs:
           command: |
             echo printenv
             printenv >> ./backend/.env
+            echo ENVIRONMENT=production >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
             tar -C backend -czvf artifact.tar.gz .
             ls -la 
       - run:
@@ -316,7 +356,23 @@ jobs:
 
 workflows:
   default:
-    jobs:
+    jobs:      
+      - build-frontend
+      - build-backend
       
-      - smoke-test
+      - deploy-infrastructure:
+          requires: [build-backend, build-frontend]
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
          
