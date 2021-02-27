@@ -6,7 +6,7 @@ commands:
     description: Destroy backend and frontend stacks.
     steps:  
       - run:
-          name: Install AWS CLI if not Exist
+          name: Destroy environment
           when: on_fail
           command: |
             if ! [ -x "$(command -v aws)" ]; then
@@ -14,19 +14,9 @@ commands:
             else
             echo "AWS CLI already installed"
             fi    
-      - run:
-          name: Delete S3 bucket
-          when: on_fail
-          command: aws s3 rm s3://udapeople-t251096 --recursive
-      - run:
-          name: Destroy Frontend Infrastructure
-          when: on_fail
-          command: aws cloudformation delete-stack --stack-name frontend-t251096
-      - run:
-          name: Destroy Backend Infrastructure
-          when: on_fail
-          command: aws cloudformation delete-stack --stack-name backend-t251096
-      
+            aws s3 rm s3://udapeople-6e81ff8 --recursive   
+            aws cloudformation delete-stack --stack-name frontend-6e81ff8
+            aws cloudformation delete-stack --stack-name backend-6e81ff8      
   
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.   
@@ -35,16 +25,15 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: t251096" \
-            --request GET https://api.memstash.io/values/migration-t251096)
+            SUCCESS=$(curl -H "token: 6e81ff8" \
+            --request GET https://api.memstash.io/values/migration-6e81ff8)
             echo "************** SUCCESS = $SUCCESS"
             if(( $SUCCESS==1 )); 
             then
              cd backend
              npm install
              npm run migrations:revert
-            fi    
-
+            fi 
             
 jobs:
   build-frontend:
@@ -54,7 +43,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend-build-t251096
+            - frontend-build-6e81ff8
       - run:
           name: Build front-end
           command: |
@@ -71,7 +60,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend-build-t251096
+          key: frontend-build-6e81ff8
 
   build-backend:
     docker:
@@ -80,7 +69,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend-build-t251096
+          - backend-build-6e81ff8
     - run:
         name: Back-end build
         command: |
@@ -95,7 +84,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend-build-t251096
+          key: backend-build-6e81ff8
   
   test-frontend:
     docker:
@@ -104,7 +93,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend-build-t251096
+            - frontend-build-6e81ff8
       - run:
           name: Test front-end
           command: |
@@ -118,7 +107,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend-build-t251096
+          - backend-build-6e81ff8
     - run:
         name: Test Back-end
         command: |
@@ -132,7 +121,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend-build-t251096
+            - frontend-build-6e81ff8
       - run:
           name: Scan frontend
           command: |
@@ -147,7 +136,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - backend-build-t251096
+            - backend-build-6e81ff8
       - run:
           name: Scan backend
           command: |
@@ -170,22 +159,22 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name backend-t251096 \
-              --parameter-overrides ID="t251096"                
+              --stack-name backend-6e81ff8 \
+              --parameter-overrides ID="6e81ff8"                
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name frontend-t251096 \
-              --parameter-overrides ID="t251096"  
+              --stack-name frontend-6e81ff8 \
+              --parameter-overrides ID="6e81ff8"  
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             INSTANCE_IP=$(aws ec2 describe-instances --region eu-west-1 \
-            --filters "Name=tag:Name,Values=backend-t251096" \
+            --filters "Name=tag:Name,Values=backend-6e81ff8" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text)
             echo ${INSTANCE_IP} >> .circleci/ansible/inventory.txt
@@ -194,7 +183,7 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt              
             curl -H "Content-Type: text/plain" \
-               -H "token: t251096" \
+               -H "token: 6e81ff8" \
                --request PUT \
                --data ${INSTANCE_IP} \
                https://api.memstash.io/values/instance_ip
@@ -243,7 +232,7 @@ jobs:
             pip3 --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: 
-            - backend-build-t251096
+            - backend-build-6e81ff8
       - run:
           name: Run migrations
           command: |            
@@ -254,16 +243,16 @@ jobs:
           name: Send migration results to memstash
           command: |
             cd backend
-            echo migration-t251096
+            echo migration-6e81ff8
             if grep -q "No migrations are pending" migration.txt
             then
-            curl -H "Content-Type: text/plain" -H "token: t251096" \
+            curl -H "Content-Type: text/plain" -H "token: 6e81ff8" \
             --request PUT \
-            --data "1" https://api.memstash.io/values/migration-t251096
+            --data "1" https://api.memstash.io/values/migration-6e81ff8
             else
-            curl -H "Content-Type: text/plain" -H "token: t251096" \
+            curl -H "Content-Type: text/plain" -H "token: 6e81ff8" \
             --request PUT \
-            --data "0" https://api.memstash.io/values/migration-t251096
+            --data "0" https://api.memstash.io/values/migration-6e81ff8
             fi
      # Here's where you will add some code to rollback on failure
   deploy-frontend:
@@ -280,7 +269,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(curl -H "token: t251096" --request GET https://api.memstash.io/values/instance_ip)
+            BACKEND_IP=$(curl -H "token: 6e81ff8" --request GET https://api.memstash.io/values/instance_ip)
             echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"  >> "frontend/.env"
@@ -293,7 +282,7 @@ jobs:
           command: |
             cd frontend
             ls -alh
-            aws s3 cp ./dist s3://udapeople-t251096 --recursive
+            aws s3 cp ./dist s3://udapeople-6e81ff8 --recursive
       # Here's where you will add some code to rollback on failure      
 
   deploy-backend:
@@ -344,19 +333,18 @@ jobs:
       - run:
           name: Install dependencies
           command: |           
-            apk add --update curl tar gzip python3 py3-pip            
-     
+            apk add --update curl tar gzip python3 py3-pip  
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=$(curl -H "token: t251096" --request GET https://api.memstash.io/values/instance_ip)
+            BACKEND_IP=$(curl -H "token: 6e81ff8" --request GET https://api.memstash.io/values/instance_ip)
             echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP            
             curl http://$BACKEND_IP:3030/api/status
       
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_URL="http://udapeople-t251096.s3-website-eu-west-1.amazonaws.com/"            
+            FRONTEND_URL="http://udapeople-6e81ff8.s3-website-eu-west-1.amazonaws.com/"            
             if curl -s ${FRONTEND_URL} | grep "Welcome"
             then
               return 1
