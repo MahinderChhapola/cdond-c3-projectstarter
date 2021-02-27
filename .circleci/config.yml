@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-6e81ff8
+            - frontend-build-6e81ff8
       - run:
           name: Build front-end
           command: |
@@ -28,7 +28,7 @@ jobs:
           paths:
             - frontend/node_modules
             - frontend/dist
-          key: frontend_build-6e81ff8
+          key: frontend-build-6e81ff8
 
   build-backend:
     docker:
@@ -37,7 +37,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-6e81ff8
+          - backend-build-6e81ff8
     - run:
         name: Back-end build
         command: |
@@ -52,7 +52,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-          key: backend_build-6e81ff8
+          key: backend-build-6e81ff8
   
   test-frontend:
     docker:
@@ -61,7 +61,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-6e81ff8
+            - frontend-build-6e81ff8
       - run:
           name: Test front-end
           command: |
@@ -75,7 +75,7 @@ jobs:
     - checkout
     - restore_cache:
         keys: 
-          - backend_build-6e81ff8
+          - backend-build-6e81ff8
     - run:
         name: Test Back-end
         command: |
@@ -89,7 +89,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - frontend_build-6e81ff8
+            - frontend-build-6e81ff8
       - run:
           name: Scan frontend
           command: |
@@ -104,7 +104,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - backend_build-6e81ff8
+            - backend-build-6e81ff8
       - run:
           name: Scan backend
           command: |
@@ -164,6 +164,14 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
+        environment:
+          TYPEORM_CONNECTION: $TYPEORM_CONNECTION
+          TYPEORM_HOST: $TYPEORM_HOST
+          TYPEORM_USERNAME: $TYPEORM_USERNAME
+          TYPEORM_PASSWORD: $TYPEORM_PASSWORD
+          TYPEORM_DATABASE: $TYPEORM_DATABASE
+          TYPEORM_MIGRATIONS: $TYPEORM_MIGRATIONS
+          TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
       - checkout
       - add_ssh_keys:
@@ -201,7 +209,7 @@ jobs:
             pip3 --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: 
-            - backend_build-6e81ff8
+            - backend-build-6e81ff8
       - run:
           name: Run migrations
           command: |
