@@ -1,4 +1,9 @@
 ---
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: "yes
+
 - name: "install dependencies."
   become: true
   apt:
@@ -19,33 +24,26 @@
     path: /home/ubuntu/backend
     state: directory
 
-- name: Copy backend dist files web server
-  copy:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend/artifact.tar.gz
+- name: "Copy backend tar.gz file and unzipping it"
+  become: yes
+  unarchive:
+    src: ~/project/backend.tar.gz
+    dest: /home/ubuntu
 
-- name: Uncompress Backend
-  shell: |
-    cd /home/ubuntu/backend
-    tar xvzf artifact.tar.gz -C .
-    ls -la
+- name: "installing dependencies"
+  become: yes
+  npm:
+    path: /home/ubuntu/backend
     
 - name: Build
   become: true
   shell: |
-    cd /home/ubuntu/backend
-    export ENVIRONMENT=production
-    export NODE_ENV=production
-    export TYPEORM_MIGRATIONS="{{ lookup('env','TYPEORM_MIGRATIONS') }}"
-    export TYPEORM_CONNECTION="{{ lookup('env','TYPEORM_CONNECTION') }}"
-    export TYPEORM_HOST="{{ lookup('env', 'TYPEORM_HOST') }}"
-    export TYPEORM_ENTITIES="{{ lookup('env', 'TYPEORM_ENTITIES') }}"
-    export TYPEORM_USERNAME="{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    export TYPEORM_PASSWORD="{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    export TYPEORM_DATABASE="{{ lookup('env', 'TYPEORM_DATABASE') }}"
+    cd /home/ubuntu/backend    
     npm install
     npm run build
-- name: Start PM2
-  shell: |
-    cd /home/ubuntu/backend 
-    pm2 start npm --name backend -- start
+
+- name: "start pm2"
+  become: yes
+  shell: pm2 start --name "backend" npm -- start
+  args:
+    chdir: /home/ubuntu/backend  
