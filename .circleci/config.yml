@@ -274,13 +274,16 @@ jobs:
             BACKEND_IP=$(curl -H "token: t251096" --request GET https://api.memstash.io/values/instance_ip)
             echo BACKEND INSTANCE IP FROM MEMSTASH $BACKEND_IP
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "${API_URL}"  >> "frontend/.env"
+            cd frontend
+            npm update
+            npm run build
+            ls -alh
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
-            npm run build
+            ls -alh
             aws s3 cp ./dist s3://udapeople-t251096 --recursive
       # Here's where you will add some code to rollback on failure      
 
@@ -351,8 +354,8 @@ jobs:
             else
               return 0
             fi
-      - destroy-environment
-      - revert-migrations    
+      # destroy-environment
+      # revert-migrations    
 
 workflows:
   default:
