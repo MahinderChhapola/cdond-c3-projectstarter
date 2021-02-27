@@ -305,7 +305,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_URL="http://http://udapeople-6e81ff8.s3-website-eu-west-1.amazonaws.com/"
+            FRONTEND_URL="http://udapeople-6e81ff8.s3-website-eu-west-1.amazonaws.com/"
             curl ${FRONTEND_URL}
             curl -s ${FRONTEND_URL}
             if curl -s ${FRONTEND_URL} | grep "Welcome"
