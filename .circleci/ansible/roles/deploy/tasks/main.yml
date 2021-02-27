@@ -2,9 +2,9 @@
 - name: "upgrade packages"
   become: yes
   apt:
-    upgrade: "yes
+    upgrade: "yes"
 
-- name: "install dependencies."
+- name: install dependencies"
   become: true
   apt:
     name: ["nodejs", "npm"]
