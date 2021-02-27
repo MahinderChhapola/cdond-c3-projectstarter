@@ -34,6 +34,10 @@
   become: true
   shell: |
     cd /home/ubuntu/backend
+    export ENVIRONMENT=production
+    export NODE_ENV=production
+    export TYPEORM_MIGRATIONS="{{ lookup('env','TYPEORM_MIGRATIONS') }}"
+    export TYPEORM_CONNECTION="{{ lookup('env','TYPEORM_CONNECTION') }}"
     export TYPEORM_HOST="{{ lookup('env', 'TYPEORM_HOST') }}"
     export TYPEORM_ENTITIES="{{ lookup('env', 'TYPEORM_ENTITIES') }}"
     export TYPEORM_USERNAME="{{ lookup('env', 'TYPEORM_USERNAME') }}"

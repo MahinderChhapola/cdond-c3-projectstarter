@@ -213,13 +213,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            
+            apk add --update ansible            
       - run:
           name: Configure server
-          command: |
-            echo printenv
-            printenv >> ./backend/.env
+          command: |            
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
             
       # Here's where you will add some code to rollback on failure  
@@ -244,9 +241,7 @@ jobs:
             - backend-build-6e81ff8
       - run:
           name: Run migrations
-          command: |
-            echo printenv
-            printenv >> ./backend/.env
+          command: |            
             cd backend
             npm run migrations >> migration.txt
             cat migration.txt            
@@ -314,9 +309,7 @@ jobs:
           name: Compress Backend
           command: |
             echo printenv
-            printenv >> ./backend/.env
-            echo "ENVIRONMENT=production" >> backend/.env
-            echo "NODE_ENV=production" >> backend/.env
+            printenv >> ./backend/.env            
             tar -C backend -czvf artifact.tar.gz .
             ls -la 
       - run:
