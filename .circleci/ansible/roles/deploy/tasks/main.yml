@@ -29,18 +29,19 @@
   unarchive:
     src: ~/project/backend.tar.gz
     dest: /home/ubuntu
-
-- name: "installing dependencies"
-  become: yes
-  npm:
-    path: /home/ubuntu/backend
     
+- name: install
+  become: true
+  shell: npm install
+  args:
+    chdir: /home/ubuntu/backend    
+
 - name: Build
   become: true
-  shell: |
-    cd /home/ubuntu/backend    
-    npm install
-    npm run build
+  shell: npm run build
+  args:
+    chdir: /home/ubuntu/backend   
+    
 
 - name: "start pm2"
   become: yes
