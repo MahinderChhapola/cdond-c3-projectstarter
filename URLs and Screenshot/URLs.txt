@@ -1,5 +1,5 @@
 URL01 - https://github.com/MahinderChhapola/cdond-c3-projectstarter
-URL02 - http://udapeople-a9bd5cb.s3-website-eu-west-1.amazonaws.com/
+URL02 - http://udapeople-6f0e887.s3-website-eu-west-1.amazonaws.com/
 URL03 - http://d2kk1hrwvwyvav.cloudfront.net/ 
-URL04 - http://ec2-54-170-162-163.eu-west-1.compute.amazonaws.com:3030/api/status
+URL04 - http://ec2-3-250-49-45.eu-west-1.compute.amazonaws.com:3030/api/status
 URL05 - http://ec2-34-244-112-139.eu-west-1.compute.amazonaws.com:9090/new/service-discovery
